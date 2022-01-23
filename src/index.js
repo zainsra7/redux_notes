@@ -1,11 +1,9 @@
 import React from 'react';
 // import { createStore } from 'redux';
+import { combineReducers } from 'redux';
 import {createStore} from './createStore';
 import ReactDOM from 'react-dom';
 import './index.css';
-import Counter from './components/Counter';
-import {counterReducer} from './components/Counter/reducer';
-import {INCREMENT, DECREMENT} from './components/Counter/reducer';
 import reportWebVitals from './reportWebVitals';
 
 const ADD_TODO = "ADD_TODO";
@@ -55,28 +53,37 @@ const visibilityFilter = (state = "SHOW_ALL", action) => {
   }
 }
 
-const todoAppReducer = (state = {}, action) => {
-  return {
-    todos: todos(state.todos, action),
-    visibilityFilter: visibilityFilter(state.visibilityFilter, action)
-  }
-}
+const todoAppReducer = combineReducers({todos,visibilityFilter});
 
-const TodoApp = ({todos, visibilityFilter}) => (
+const TodoApp = ({todos, visibilityFilter, addTodoHandler, toggleTodoHandler}) => (
   <div>
     <ul>
-      {todos.map(todo => <li>{todo.text}</li>)}
+      {todos.map(todo => 
+      <div>
+        <li key={todo.id}>
+          {todo.completed? <strike>{todo.text}</strike> : todo.text}
+        </li>
+      </div>
+      )}
     </ul>
+    <button onClick={addTodoHandler}>ADD_TODO</button>
   </div>
 ) 
 
 const store = createStore(todoAppReducer);
+
+let todoId = 0;
 
 const render = () => ReactDOM.render(
   <React.StrictMode>
     <TodoApp 
     todos={store.getState().todos} 
     visibilityFilter={store.getState().visibilityFilter} 
+    addTodoHandler={()=> store.dispatch({
+      type: ADD_TODO,
+      id: todoId++,
+      text: 'New_TODO'
+    })}
      />
   </React.StrictMode>,
   document.getElementById('root')
