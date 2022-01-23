@@ -1,5 +1,6 @@
 import React from 'react';
-import { createStore } from 'redux';
+// import { createStore } from 'redux';
+import {createStore} from './createStore';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
