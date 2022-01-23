@@ -46,14 +46,38 @@ const todos = (state = [], action) => {
   }
 }
 
-const store = createStore(counterReducer);
+const visibilityFilter = (state = "SHOW_ALL", action) => {
+  switch(action.type){
+    case 'SET_VISIBILITY_FILTER':
+      return action.filter;
+    default: 
+      return state;
+  }
+}
+
+const todoAppReducer = (state = {}, action) => {
+  return {
+    todos: todos(state.todos, action),
+    visibilityFilter: visibilityFilter(state.visibilityFilter, action)
+  }
+}
+
+const TodoApp = ({todos, visibilityFilter}) => (
+  <div>
+    <ul>
+      {todos.map(todo => <li>{todo.text}</li>)}
+    </ul>
+  </div>
+) 
+
+const store = createStore(todoAppReducer);
 
 const render = () => ReactDOM.render(
   <React.StrictMode>
-    <Counter 
-    value={store.getState()} 
-    onIncrement={() => store.dispatch({type: INCREMENT})} 
-    onDecrement={() => store.dispatch({type: DECREMENT})} />
+    <TodoApp 
+    todos={store.getState().todos} 
+    visibilityFilter={store.getState().visibilityFilter} 
+     />
   </React.StrictMode>,
   document.getElementById('root')
 );
