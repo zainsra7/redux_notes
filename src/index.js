@@ -1,4 +1,5 @@
 import React from 'react';
+import {useRef} from 'react';
 import { combineReducers } from './combinedReducers';
 import {  createStore   } from './createStore';
 import ReactDOM from 'react-dom';
@@ -51,24 +52,40 @@ const visibilityFilter = (state = "SHOW_ALL", action) => {
   }
 }
 
-const todoAppReducer = combineReducers({todos,visibilityFilter});
+const todoApp = combineReducers({todos,visibilityFilter});
 
-const TodoApp = ({todos, visibilityFilter, addTodoHandler, toggleTodoHandler}) => (
-  <div>
-    <ul>
-      {todos.map(todo => 
-      <div>
-        <li key={todo.id}>
-          {todo.completed? <strike>{todo.text}</strike> : todo.text}
-        </li>
-      </div>
-      )}
-    </ul>
-    <button onClick={addTodoHandler}>ADD_TODO</button>
-  </div>
-) 
+const store = createStore(todoApp);
 
-const store = createStore(todoAppReducer);
+let nextTodoId = 0;
+
+const TodoApp = ({todos}) => {
+  const inputEl = useRef(null);
+  return(
+    <div>
+      <input ref={inputEl} type="text" />
+      <ul>
+        {todos.map(todo => 
+        <div>
+          <li key={todo.id}>
+            {todo.completed? <strike>{todo.text}</strike> : todo.text}
+          </li>
+        </div>
+        )}
+      </ul>
+      <button onClick={() => {
+        if(inputEl.current.value !== ''){
+          store.dispatch({
+            type: ADD_TODO,
+            id: nextTodoId++,
+            text: inputEl.current.value
+          })
+          inputEl.current.value = '';
+        }
+      }}>
+      ADD TODO</button>
+    </div>
+)};
+
 
 let todoId = 0;
 
@@ -76,13 +93,7 @@ const render = () => ReactDOM.render(
   <React.StrictMode>
     <TodoApp 
     todos={store.getState().todos} 
-    visibilityFilter={store.getState().visibilityFilter} 
-    addTodoHandler={()=> store.dispatch({
-      type: ADD_TODO,
-      id: todoId++,
-      text: 'New_TODO'
-    })}
-     />
+    />
   </React.StrictMode>,
   document.getElementById('root')
 );
