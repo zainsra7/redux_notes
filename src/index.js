@@ -1,6 +1,6 @@
 import React from 'react';
-import { combineReducers } from 'redux';
-import {createStore} from './createStore';
+import { combineReducers } from './combinedReducers';
+import {  createStore   } from './createStore';
 import ReactDOM from 'react-dom';
 import './index.css';
 
