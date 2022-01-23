@@ -3,7 +3,9 @@ import React from 'react';
 import {createStore} from './createStore';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+import Counter from './components/Counter';
+import {counterReducer} from './components/Counter/reducer';
+import {INCREMENT, DECREMENT} from './components/Counter/reducer';
 import reportWebVitals from './reportWebVitals';
 
 const ADD_TODO = "ADD_TODO";
@@ -44,29 +46,7 @@ const todos = (state = [], action) => {
   }
 }
 
-const INCREMENT = 'INCREMENT';
-const DECREMENT = 'DECREMENT';
-
-const counter = (state=0, action) => {
-  switch(action.type){
-    case INCREMENT:
-      return state + 1;
-    case DECREMENT:
-      return state - 1;
-      default:
-        return state;
-  }
-}
-const store = createStore(counter);
-
-const Counter = ({value, onIncrement, onDecrement}) => (
-  <div>
-    <h1>{value}</h1>
-    <button onClick={onIncrement}>+</button>
-    <button onClick={onDecrement}>-</button>
-  </div>
-  );
-
+const store = createStore(counterReducer);
 
 const render = () => ReactDOM.render(
   <React.StrictMode>
