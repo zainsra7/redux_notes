@@ -66,7 +66,14 @@ const TodoApp = ({todos}) => {
       <ul>
         {todos.map(todo => 
         <div>
-          <li key={todo.id}>
+          <li key={todo.id}
+            onClick={() => {
+              store.dispatch({
+                type: TOGGLE_TODO,
+                id: todo.id
+              });
+            }}
+          >
             {todo.completed? <strike>{todo.text}</strike> : todo.text}
           </li>
         </div>
@@ -85,9 +92,6 @@ const TodoApp = ({todos}) => {
       ADD TODO</button>
     </div>
 )};
-
-
-let todoId = 0;
 
 const render = () => ReactDOM.render(
   <React.StrictMode>
