@@ -72,18 +72,16 @@ const visibilityFilter = (state = SHOW_ALL, action) => {
 // Redux store setup
 const todoApp = combineReducers({todos,visibilityFilter});
 
-const store = createStore(todoApp);
-
 // Presentational (UI) Components
-const Footer = () => (
+const Footer = ({store}) => (
   <p>
     Show: 
     <br />
-    <FilterLink filter={SHOW_ALL}>{SHOW_ALL}</FilterLink>
+    <FilterLink filter={SHOW_ALL} store={store}>{SHOW_ALL}</FilterLink>
     <br />
-    <FilterLink filter={SHOW_ACTIVE}>{SHOW_ACTIVE}</FilterLink>
+    <FilterLink filter={SHOW_ACTIVE} store={store}>{SHOW_ACTIVE}</FilterLink>
     <br />
-    <FilterLink filter={SHOW_COMPLETED}>{SHOW_COMPLETED}</FilterLink>
+    <FilterLink filter={SHOW_COMPLETED} store={store}>{SHOW_COMPLETED}</FilterLink>
   </p>
 );
 const Link = ({
@@ -133,7 +131,7 @@ const Todo = ({
 // Container Components
 class FilterLink extends React.Component {
   componentDidMount(){
-    this.unsubscribe = store.subscribe(() => this.forceUpdate());
+    this.unsubscribe = this.props.store.subscribe(() => this.forceUpdate());
   }
 
   componentWillUnmount(){
@@ -142,7 +140,8 @@ class FilterLink extends React.Component {
   render(){
     const {
       filter,
-      children
+      children,
+      store
     } = this.props;
     const { 
       visibilityFilter 
@@ -162,13 +161,14 @@ class FilterLink extends React.Component {
   }
 }
 class VisibileTodoList extends React.Component {
-  componetnDidMount(){
-    this.unsubscribe = this.subscribe(() => this.forceUpdate());
+  componentDidMount(){
+    this.unsubscribe = this.props.store.subscribe(() => this.forceUpdate());
   }
   componentWillUnmount(){
     this.unsubscribe();
   }
   render(){
+    const {store} = this.props;
     const {todos, visibilityFilter} = store.getState();
     return(
       <TodoList 
@@ -181,7 +181,7 @@ class VisibileTodoList extends React.Component {
     );
   }
 }
-const AddTodo = () => {
+const AddTodo = ({store}) => {
   const inputEl = useRef(null);
   return (
     <div>
@@ -204,21 +204,18 @@ const AddTodo = () => {
 }
 
 // Main app render
-const TodoApp = ({todos, visibilityFilter}) => {
+const TodoApp = ({store}) => {
   return(
     <div>
-      <AddTodo />
-      <VisibileTodoList />
-      <Footer />
+      <AddTodo store={store}/>
+      <VisibileTodoList store={store}/>
+      <Footer store={store}/>
     </div>
 )};
-const render = () => ReactDOM.render(
+
+ReactDOM.render(
   <React.StrictMode>
-    <TodoApp />
+    <TodoApp store={createStore(todoApp)}/>
   </React.StrictMode>,
   document.getElementById('root')
 );
-
-// Subscribe and initial render
-store.subscribe(render);
-render();
