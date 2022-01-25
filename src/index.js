@@ -3,6 +3,7 @@ import {  useRef } from 'react';
 import { combineReducers } from './combinedReducers';
 import {  createStore   } from './createStore';
 import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 
 // Constants
 const ADD_TODO = "ADD_TODO";
@@ -73,15 +74,15 @@ const visibilityFilter = (state = SHOW_ALL, action) => {
 const todoApp = combineReducers({todos,visibilityFilter});
 
 // Presentational (UI) Components
-const Footer = ({store}) => (
+const Footer = () => (
   <p>
     Show: 
     <br />
-    <FilterLink filter={SHOW_ALL} store={store}>{SHOW_ALL}</FilterLink>
+    <FilterLink filter={SHOW_ALL}>{SHOW_ALL}</FilterLink>
     <br />
-    <FilterLink filter={SHOW_ACTIVE} store={store}>{SHOW_ACTIVE}</FilterLink>
+    <FilterLink filter={SHOW_ACTIVE}>{SHOW_ACTIVE}</FilterLink>
     <br />
-    <FilterLink filter={SHOW_COMPLETED} store={store}>{SHOW_COMPLETED}</FilterLink>
+    <FilterLink filter={SHOW_COMPLETED}>{SHOW_COMPLETED}</FilterLink>
   </p>
 );
 const Link = ({
@@ -131,7 +132,7 @@ const Todo = ({
 // Container Components
 class FilterLink extends React.Component {
   componentDidMount(){
-    this.unsubscribe = this.props.store.subscribe(() => this.forceUpdate());
+    this.unsubscribe = this.context.store.subscribe(() => this.forceUpdate());
   }
 
   componentWillUnmount(){
@@ -141,8 +142,8 @@ class FilterLink extends React.Component {
     const {
       filter,
       children,
-      store
     } = this.props;
+    const { store } = this.context;
     const { 
       visibilityFilter 
     } = store.getState();
@@ -162,13 +163,13 @@ class FilterLink extends React.Component {
 }
 class VisibileTodoList extends React.Component {
   componentDidMount(){
-    this.unsubscribe = this.props.store.subscribe(() => this.forceUpdate());
+    this.unsubscribe = this.context.store.subscribe(() => this.forceUpdate());
   }
   componentWillUnmount(){
     this.unsubscribe();
   }
   render(){
-    const {store} = this.props;
+    const {store} = this.context;
     const {todos, visibilityFilter} = store.getState();
     return(
       <TodoList 
@@ -181,7 +182,7 @@ class VisibileTodoList extends React.Component {
     );
   }
 }
-const AddTodo = ({store}) => {
+const AddTodo = (props, {store}) => {
   const inputEl = useRef(null);
   return (
     <div>
@@ -203,19 +204,46 @@ const AddTodo = ({store}) => {
   );
 }
 
+class Provider extends React.Component {
+  getChildContext(){
+    return {
+      store: this.props.store
+    };
+  }
+  render(){
+    return this.props.children;
+  }
+}
+
+// Types
+Provider.childContextTypes = {
+  store: PropTypes.object
+}
+VisibileTodoList.contextTypes = {
+  store: PropTypes.object
+}
+AddTodo.contextTypes = {
+  store: PropTypes.object
+}
+FilterLink.contextTypes = {
+  store: PropTypes.object
+}
+
 // Main app render
-const TodoApp = ({store}) => {
+const TodoApp = () => {
   return(
     <div>
-      <AddTodo store={store}/>
-      <VisibileTodoList store={store}/>
-      <Footer store={store}/>
+      <AddTodo />
+      <VisibileTodoList />
+      <Footer />
     </div>
 )};
 
 ReactDOM.render(
   <React.StrictMode>
-    <TodoApp store={createStore(todoApp)}/>
+    <Provider store={createStore(todoApp)}>
+      <TodoApp />
+    </Provider>
   </React.StrictMode>,
   document.getElementById('root')
 );
