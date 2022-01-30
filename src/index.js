@@ -2,6 +2,7 @@ import React from 'react';
 import {  useRef } from 'react';
 import { combineReducers } from './combinedReducers';
 import {  createStore   } from './createStore';
+import {  Provider, connect } from 'react-redux';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 
@@ -161,27 +162,29 @@ class FilterLink extends React.Component {
     );
   }
 }
-class VisibileTodoList extends React.Component {
-  componentDidMount(){
-    this.unsubscribe = this.context.store.subscribe(() => this.forceUpdate());
-  }
-  componentWillUnmount(){
-    this.unsubscribe();
-  }
-  render(){
-    const {store} = this.context;
-    const {todos, visibilityFilter} = store.getState();
-    return(
-      <TodoList 
-        todos={getVisibleTodos(todos,visibilityFilter)}
-        onTodoClick={id => store.dispatch({
-          type: TOGGLE_TODO,
-          id
-        })}
-      />
-    );
-  }
-}
+
+const mapStateToProps = (state) => {
+  return {
+    todos: getVisibleTodos(
+      state.todos,
+      state.visibilityFilter
+    )
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onTodoClick: (id) => {
+      dispatch({
+        type: TOGGLE_TODO,
+        id
+      })
+    }
+  };
+};
+
+const VisibileTodoList = connect(mapStateToProps, mapDispatchToProps)(TodoList);
+
 const AddTodo = (props, {store}) => {
   const inputEl = useRef(null);
   return (
@@ -202,25 +205,6 @@ const AddTodo = (props, {store}) => {
       </button>
     </div>
   );
-}
-
-class Provider extends React.Component {
-  getChildContext(){
-    return {
-      store: this.props.store
-    };
-  }
-  render(){
-    return this.props.children;
-  }
-}
-
-// Types
-Provider.childContextTypes = {
-  store: PropTypes.object
-}
-VisibileTodoList.contextTypes = {
-  store: PropTypes.object
 }
 AddTodo.contextTypes = {
   store: PropTypes.object
