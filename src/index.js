@@ -185,14 +185,14 @@ const mapDispatchToProps = (dispatch) => {
 
 const VisibileTodoList = connect(mapStateToProps, mapDispatchToProps)(TodoList);
 
-const AddTodo = (props, {store}) => {
+let AddTodo = ({dispatch}) => {
   const inputEl = useRef(null);
   return (
     <div>
       <input ref={inputEl} type="text" />
       <button onClick={() => {
         if(inputEl.current.value !== ""){
-          store.dispatch({
+          dispatch({
             type: ADD_TODO,
             id: nextTodoId++,
             text: inputEl.current.value
@@ -206,9 +206,8 @@ const AddTodo = (props, {store}) => {
     </div>
   );
 }
-AddTodo.contextTypes = {
-  store: PropTypes.object
-}
+AddTodo = connect()(AddTodo);
+
 FilterLink.contextTypes = {
   store: PropTypes.object
 }
