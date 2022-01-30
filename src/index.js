@@ -131,39 +131,27 @@ const Todo = ({
 );
 
 // Container Components
-class FilterLink extends React.Component {
-  componentDidMount(){
-    this.unsubscribe = this.context.store.subscribe(() => this.forceUpdate());
-  }
 
-  componentWillUnmount(){
-    this.unsubscribe();
+const mapStateToLinkProps = (state, ownProps) => {
+  return{
+    active: ownProps.filter === state.visibilityFilter
   }
-  render(){
-    const {
-      filter,
-      children,
-    } = this.props;
-    const { store } = this.context;
-    const { 
-      visibilityFilter 
-    } = store.getState();
+};
 
-    return (
-      <Link 
-        active={visibilityFilter === filter}
-        onClick={() => store.dispatch({
-          type: SET_VISIBILITY_FILTER,
-          filter
-        })}
-      >
-        {children}
-      </Link>
-    );
+const mapDispatchToLinkProps = (dispatch, ownProps) => {
+  return{
+    onClick: () => {
+      dispatch({
+        type: SET_VISIBILITY_FILTER, 
+        filter: ownProps.filter
+      })
+    }
   }
 }
 
-const mapStateToProps = (state) => {
+const FilterLink = connect(mapStateToLinkProps, mapDispatchToLinkProps)(Link);
+
+const mapStateToListProps = (state) => {
   return {
     todos: getVisibleTodos(
       state.todos,
@@ -172,7 +160,7 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToListProps = (dispatch) => {
   return {
     onTodoClick: (id) => {
       dispatch({
@@ -183,7 +171,7 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-const VisibileTodoList = connect(mapStateToProps, mapDispatchToProps)(TodoList);
+const VisibileTodoList = connect(mapStateToListProps, mapDispatchToListProps)(TodoList);
 
 let AddTodo = ({dispatch}) => {
   const inputEl = useRef(null);
@@ -208,9 +196,6 @@ let AddTodo = ({dispatch}) => {
 }
 AddTodo = connect()(AddTodo);
 
-FilterLink.contextTypes = {
-  store: PropTypes.object
-}
 
 // Main app render
 const TodoApp = () => {
