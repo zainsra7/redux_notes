@@ -130,8 +130,28 @@ const Todo = ({
   </li>
 );
 
-// Container Components
+// Action Creators
+const addTodo = (text) => {
+  return {
+    type: ADD_TODO,
+    id: nextTodoId++,
+    text,
+  };
+};
+const setVisibilityFilter = (filter) => {
+  return {
+    type: SET_VISIBILITY_FILTER,
+    filter
+  };
+};
+const toggleTodo = (id) => {
+  return {
+    type: TOGGLE_TODO,
+    id
+  };
+};
 
+// Container Components
 const mapStateToLinkProps = (state, ownProps) => {
   return{
     active: ownProps.filter === state.visibilityFilter
@@ -141,10 +161,7 @@ const mapStateToLinkProps = (state, ownProps) => {
 const mapDispatchToLinkProps = (dispatch, ownProps) => {
   return{
     onClick: () => {
-      dispatch({
-        type: SET_VISIBILITY_FILTER, 
-        filter: ownProps.filter
-      })
+      dispatch(setVisibilityFilter(ownProps.filter))
     }
   }
 }
@@ -163,10 +180,7 @@ const mapStateToListProps = (state) => {
 const mapDispatchToListProps = (dispatch) => {
   return {
     onTodoClick: (id) => {
-      dispatch({
-        type: TOGGLE_TODO,
-        id
-      })
+      dispatch(toggleTodo(id))
     }
   };
 };
@@ -180,11 +194,7 @@ let AddTodo = ({dispatch}) => {
       <input ref={inputEl} type="text" />
       <button onClick={() => {
         if(inputEl.current.value !== ""){
-          dispatch({
-            type: ADD_TODO,
-            id: nextTodoId++,
-            text: inputEl.current.value
-          })
+          dispatch(addTodo(inputEl.current.value))
           inputEl.current.value="";
         }
       }}
