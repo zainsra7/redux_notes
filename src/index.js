@@ -4,7 +4,6 @@ import { combineReducers } from './combinedReducers';
 import {  createStore   } from './createStore';
 import {  Provider, connect } from 'react-redux';
 import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
 
 // Constants
 const ADD_TODO = "ADD_TODO";
@@ -131,59 +130,45 @@ const Todo = ({
 );
 
 // Action Creators
-const addTodo = (text) => {
-  return {
-    type: ADD_TODO,
-    id: nextTodoId++,
-    text,
-  };
-};
-const setVisibilityFilter = (filter) => {
-  return {
-    type: SET_VISIBILITY_FILTER,
-    filter
-  };
-};
-const toggleTodo = (id) => {
-  return {
-    type: TOGGLE_TODO,
-    id
-  };
-};
+const addTodo = (text) => ({
+  type: ADD_TODO,
+  id: nextTodoId++,
+  text,
+});
+const setVisibilityFilter = (filter) => ({
+  type: SET_VISIBILITY_FILTER,
+  filter
+});
+const toggleTodo = (id) => ({
+  type: TOGGLE_TODO,
+  id
+});
 
 // Container Components
-const mapStateToLinkProps = (state, ownProps) => {
-  return{
-    active: ownProps.filter === state.visibilityFilter
-  }
-};
+const mapStateToLinkProps = (state, ownProps) => ({
+  active: ownProps.filter === state.visibilityFilter
+});
 
-const mapDispatchToLinkProps = (dispatch, ownProps) => {
-  return{
-    onClick: () => {
-      dispatch(setVisibilityFilter(ownProps.filter))
-    }
+const mapDispatchToLinkProps = (dispatch, ownProps) => ({
+  onClick(){
+    dispatch(setVisibilityFilter(ownProps.filter))
   }
-}
+});
 
 const FilterLink = connect(mapStateToLinkProps, mapDispatchToLinkProps)(Link);
 
-const mapStateToListProps = (state) => {
-  return {
-    todos: getVisibleTodos(
-      state.todos,
-      state.visibilityFilter
-    )
-  };
-};
+const mapStateToListProps = (state) => ({
+  todos: getVisibleTodos(
+    state.todos,
+    state.visibilityFilter
+  )
+});
 
-const mapDispatchToListProps = (dispatch) => {
-  return {
-    onTodoClick: (id) => {
-      dispatch(toggleTodo(id))
-    }
-  };
-};
+const mapDispatchToListProps = (dispatch) => ({
+  onTodoClick(id){
+    dispatch(toggleTodo(id))
+  }
+});
 
 const VisibileTodoList = connect(mapStateToListProps, mapDispatchToListProps)(TodoList);
 
